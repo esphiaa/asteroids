@@ -1,23 +1,30 @@
 import pygame
 from constants import *
 from player import *
-
-pygame.init()
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-clock = pygame.time.Clock()
-dt = 0 # delta time
+from asteroidfield import *
 
 x = SCREEN_WIDTH / 2
 y = SCREEN_HEIGHT / 2
 
 def main():
-    print("Starting Asteroids!")
-    print(f"Screen width: {SCREEN_WIDTH}")
-    print(f"Screen height: {SCREEN_HEIGHT}")
+    pygame.init()
 
-    player = Player(x, y)
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
+
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
+    
+    Player.containers = (updatable, drawable)
+    Asteroid.containers = (updatable, drawable, asteroids)
+    AsteroidField.containers = (updatable)
+
+    asteroid_field = AsteroidField()
+
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    
+    dt = 0 # delta time
 
     # Game loop
     while True:
@@ -25,12 +32,20 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-        
+
+        # Update
+        updatable.update(dt)
+
         # Set bg to black
-        pygame.Surface.fill(screen, (0, 0, 0))  # Fill the screen with black
-        player.draw(screen)
+        screen.fill("black")
+
+        # Draw
+        for thing in drawable:
+            thing.draw(screen)
+        # player.draw(screen)
         pygame.display.flip()
 
+        # Ensure 60fps
         dt = clock.tick(60) / 1000 # Set the frame rate to 60 FPS (pause for 1/60 seconds)
 
 if __name__ == "__main__":
