@@ -4,9 +4,6 @@ from player import *
 from asteroidfield import *
 import sys
 
-x = SCREEN_WIDTH / 2
-y = SCREEN_HEIGHT / 2
-
 def main():
     pygame.init()
 
@@ -42,17 +39,23 @@ def main():
         # Check for collisions
         for asteroid in asteroids:
             if player.collide(asteroid):
-                print("Game Over!")
-                sys.exit()
+                player.death()
 
         # Check for collisions with shots
         for asteroid in asteroids:
             for shot in shots:
                 # print(shot.position, asteroid.position, shot.radius, asteroid.radius)
                 if shot.collide(asteroid):
-                    print("Hit!")
+                    player.updatepoints()
                     shot.kill()
                     asteroid.split()
+
+        # yay progression
+        if player.score % 150 == 0 and not player.upgrade_triggered and player.score != 0:
+            player.upgrade_weapon()
+
+        if player.score % 150 != 0:
+            player.upgrade_triggered = False
 
         # Set bg to black
         screen.fill("black")
@@ -60,10 +63,9 @@ def main():
         # Draw
         for thing in drawable:
             thing.draw(screen)
-        # player.draw(screen)
+
         pygame.display.flip()
 
-        # Ensure 60fps
         dt = clock.tick(60) / 1000 # Set the frame rate to 60 FPS (pause for 1/60 seconds)
 
 if __name__ == "__main__":
